@@ -1,0 +1,430 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6",
+		"name": "Restaurant AI Receptionist Chatbot API",
+		"description": "API collection for managing customers, reservations, menu items, and interacting with the RAG-enabled Restaurant Receptionist chatbot.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Root & Health",
+			"item": [
+				{
+					"name": "Get API Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Customers",
+			"item": [
+				{
+					"name": "Register Customer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Alice Smith\",\n  \"phone\": \"+15550199\",\n  \"email\": \"alice.smith@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/customers/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Customers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/customers/?skip=0&limit=50",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers",
+								""
+							],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "50"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Customer by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/customers/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Customer Info",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Alice J. Smith\",\n  \"email\": \"alice.j.smith@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/customers/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Customer",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/customers/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Menu",
+			"item": [
+				{
+					"name": "Add Menu Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Lasagna Classica\",\n  \"description\": \"Layered pasta sheets filled with bolognese sauce, creamy béchamel, and fresh mozzarella cheese.\",\n  \"price\": 19.50,\n  \"category\": \"entrees\",\n  \"is_available\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/menu/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"menu",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List All Menu Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/menu/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"menu",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Menu (RAG lookup)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/menu/search?q=pizza",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"menu",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "pizza"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reservations",
+			"item": [
+				{
+					"name": "Create Reservation (Existing Customer ID)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customer_id\": 1,\n  \"reservation_time\": \"2026-07-15T19:30:00\",\n  \"party_size\": 4,\n  \"special_requests\": \"Anniversary dinner, window side preferred\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/reservations/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reservations",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Reservation With Nested Customer Info",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customer_name\": \"Bob Miller\",\n  \"customer_phone\": \"+15550244\",\n  \"customer_email\": \"bob@example.com\",\n  \"reservation_time\": \"2026-07-20T20:00:00\",\n  \"party_size\": 2,\n  \"special_requests\": \"No special requests\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/reservations/with-customer",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reservations",
+								"with-customer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Reservations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/reservations/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reservations",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Reservations by Customer Phone",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/reservations/customer/%2B15550199",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reservations",
+								"customer",
+								"%2B15550199"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AI Receptionist Chatbot",
+			"item": [
+				{
+					"name": "Chat (Menu Inquiry)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"session_id\": \"session_dev_test_1\",\n  \"message\": \"What starters or appetizers do you have, and how much do they cost?\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/chatbot/chat",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"chat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Chat (Book Table Request)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"session_id\": \"session_dev_test_1\",\n  \"message\": \"I'd like to book a table for 4 people under the name Charlie Brown, phone number +15550377, for tomorrow at 7 PM.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/chatbot/chat",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"chat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Chat History & Context Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chatbot/history/session_dev_test_1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"history",
+								"session_dev_test_1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		}
+	]
+}

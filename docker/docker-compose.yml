@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: restaurant_mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: restaurant_db
+      MYSQL_USER: receptionist_user
+      MYSQL_PASSWORD: receptionist_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Map the SQL schema to initialize the DB automatically on first boot
+      - ../sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama_service
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/app.Dockerfile
+    container_name: restaurant_chatbot_app
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:password@db:3306/restaurant_db
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3
+      - LOG_LEVEL=INFO
+    depends_on:
+      db:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+
+volumes:
+  mysql_data:
+  ollama_data:
