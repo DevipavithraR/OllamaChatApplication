@@ -1,6 +1,6 @@
 -- MySQL Schema for Restaurant Receptionist AI Chatbot
-CREATE DATABASE IF NOT EXISTS `restaurant_db`;
-USE `restaurant_db`;
+CREATE DATABASE IF NOT EXISTS `attendance_db`;
+USE `attendance_db`;
 
 -- Customers Table
 CREATE TABLE IF NOT EXISTS `customers` (
