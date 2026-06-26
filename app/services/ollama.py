@@ -26,7 +26,7 @@ class OllamaService:
 
         try:
             logger.info(f"Sending request to Ollama model '{self.model}' at {url}")
-            response = requests.post(url, json=payload, timeout=60.0)
+            response = requests.post(url, json=payload, timeout=180.0)
             response.raise_for_status()
             
             result = response.json()
