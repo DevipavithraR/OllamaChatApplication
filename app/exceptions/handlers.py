@@ -26,7 +26,7 @@ def setup_exception_handlers(app: FastAPI):
 
     @app.exception_handler(SQLAlchemyError)
     async def database_exception_handler(request: Request, exc: SQLAlchemyError):
-        logger.error(f"Database error occurred: {str(exc)} on path {request.url.path}")
+        logger.error(f"Database error occurred: {str(exc)} on path {request.url.path}", exc_info=True)
         return JSONResponse(
             status_code=500,
             content={
