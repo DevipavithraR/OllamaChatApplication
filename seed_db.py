@@ -1,27 +1,26 @@
 import logging
 from app.database import SessionLocal, engine, Base
-from app.models.menu import MenuItem
+from app.models.Doctor import Doctor
+from app.models.Department import Department
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("seed")
 
-MENU_ITEMS = [
-    {"name": "Caprese Salad", "description": "Fresh mozzarella, ripe tomatoes, sweet basil leaves, drizzled with balsamic glaze and extra virgin olive oil.", "price": 11.50, "category": "appetizers", "is_available": True},
-    {"name": "Bruschetta", "description": "Grilled bread rubbed with garlic, topped with diced tomatoes, fresh basil, and extra virgin olive oil.", "price": 9.00, "category": "appetizers", "is_available": True},
-    {"name": "Minestrone Soup", "description": "Classic Italian vegetable soup made with tomatoes, beans, onions, celery, carrots, and pasta.", "price": 8.50, "category": "appetizers", "is_available": True},
-    {"name": "Margherita Pizza", "description": "Traditional Italian pizza topped with tomato sauce, fresh mozzarella, and sweet basil.", "price": 14.50, "category": "entrees", "is_available": True},
-    {"name": "Fettuccine Alfredo", "description": "Fettuccine pasta tossed in a rich, creamy sauce made of parmesan cheese and butter.", "price": 17.50, "category": "entrees", "is_available": True},
-    {"name": "Spaghetti Carbonara", "description": "Spaghetti tossed with crispy pancetta, eggs, pecorino romano cheese, and cracked black pepper.", "price": 18.00, "category": "entrees", "is_available": True},
-    {"name": "Grilled Ribeye Steak", "description": "Premium ribeye steak grilled to order, served with garlic mashed potatoes and roasted asparagus.", "price": 32.00, "category": "entrees", "is_available": True},
-    {"name": "Chicken Parmigiana", "description": "Breaded chicken breast baked with tomato sauce and mozzarella cheese, served over spaghetti.", "price": 21.00, "category": "entrees", "is_available": True},
-    {"name": "Tiramisu", "description": "Classic Italian dessert made of coffee-dipped ladyfingers layered with whipped mascarpone cheese and cocoa.", "price": 8.50, "category": "desserts", "is_available": True},
-    {"name": "Panna Cotta", "description": "Creamy Italian pudding sweetened with sugar and vanilla, topped with a fresh raspberry coulis.", "price": 7.50, "category": "desserts", "is_available": True},
-    {"name": "Gelato Trio", "description": "Three scoops of authentic Italian gelato. Flavors: dark chocolate, pistachio, and Tahitian vanilla.", "price": 6.50, "category": "desserts", "is_available": True},
-    {"name": "Chardonnay", "description": "Crisp white wine with notes of apple, pear, and a touch of oak. Glass/Bottle.", "price": 9.50, "category": "drinks", "is_available": True},
-    {"name": "Chianti Classico", "description": "Bold red wine with cherry, leather, and vanilla tasting notes. Glass/Bottle.", "price": 11.00, "category": "drinks", "is_available": True},
-    {"name": "San Pellegrino", "description": "Sparkling natural mineral water from the Italian Alps.", "price": 4.50, "category": "drinks", "is_available": True},
-    {"name": "Espresso", "description": "Rich and intense shot of freshly brewed espresso.", "price": 3.50, "category": "drinks", "is_available": True}
+DEPARTMENTS = [
+    {"department_name": "Cardiology", "description": "Heart related diagnosis and treatment."},
+    {"department_name": "Pediatrics", "description": "Child healthcare."},
+    {"department_name": "Orthopedics", "description": "Bone and joint treatment."},
+    {"department_name": "Neurology", "description": "Brain and nervous system."},
+    {"department_name": "General Medicine", "description": "General healthcare."}
+]
+
+DOCTORS = [
+    {"name": "Dr. Priya", "department": "Cardiology", "specialization": "Cardiologist", "experience": 12, "consultation_fee": 700.00, "available_days": "Monday-Friday", "available_time": "10 AM-4 PM", "status": "ACTIVE"},
+    {"name": "Dr. Sharma", "department": "Pediatrics", "specialization": "Pediatrician", "experience": 8, "consultation_fee": 500.00, "available_days": "Monday-Saturday", "available_time": "9 AM-1 PM", "status": "ACTIVE"},
+    {"name": "Dr. Goel", "department": "Orthopedics", "specialization": "Orthopedic Surgeon", "experience": 15, "consultation_fee": 800.00, "available_days": "Tuesday-Thursday-Saturday", "available_time": "2 PM-6 PM", "status": "ACTIVE"},
+    {"name": "Dr. Gupta", "department": "Neurology", "specialization": "Neurologist", "experience": 10, "consultation_fee": 900.00, "available_days": "Monday-Wednesday-Friday", "available_time": "11 AM-5 PM", "status": "ACTIVE"},
+    {"name": "Dr. Verma", "department": "General Medicine", "specialization": "General Physician", "experience": 6, "consultation_fee": 400.00, "available_days": "Monday-Saturday", "available_time": "9 AM-5 PM", "status": "ACTIVE"}
 ]
 
 def seed_database():
@@ -30,18 +29,30 @@ def seed_database():
     
     db = SessionLocal()
     try:
-        # Check if menu already has items
-        existing_count = db.query(MenuItem).count()
-        if existing_count > 0:
-            logger.info(f"Database already contains {existing_count} menu items. Skipping seed.")
-            return
+        # Seed Departments
+        existing_dept_count = db.query(Department).count()
+        if existing_dept_count > 0:
+            logger.info(f"Database already contains {existing_dept_count} departments. Skipping department seed.")
+        else:
+            logger.info("Seeding departments...")
+            for dept_data in DEPARTMENTS:
+                dept = Department(**dept_data)
+                db.add(dept)
+            db.commit()
+            logger.info("Department seeding completed successfully!")
 
-        logger.info("Seeding menu items...")
-        for item_data in MENU_ITEMS:
-            item = MenuItem(**item_data)
-            db.add(item)
-        db.commit()
-        logger.info("Seeding completed successfully!")
+        # Seed Doctors
+        existing_doc_count = db.query(Doctor).count()
+        if existing_doc_count > 0:
+            logger.info(f"Database already contains {existing_doc_count} doctors. Skipping doctor seed.")
+        else:
+            logger.info("Seeding doctors...")
+            for doc_data in DOCTORS:
+                doc = Doctor(**doc_data)
+                db.add(doc)
+            db.commit()
+            logger.info("Doctor seeding completed successfully!")
+
     except Exception as e:
         db.rollback()
         logger.error(f"Error seeding database: {str(e)}")

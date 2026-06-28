@@ -1,11 +1,13 @@
-from app.routers.customer import router as customer_router
-from app.routers.reservation import router as reservation_router
-from app.routers.menu import router as menu_router
+from app.routers.patients import router as patient_router
+from app.routers.doctors import router as doctor_router
+from app.routers.departments import router as department_router
+from app.routers.appointments import router as appointment_router
 from app.routers.chatbot import router as chatbot_router
 
 __all__ = [
-    "customer_router",
-    "reservation_router",
-    "menu_router",
+    "patient_router",
+    "doctor_router",
+    "department_router",
+    "appointment_router",
     "chatbot_router"
 ]

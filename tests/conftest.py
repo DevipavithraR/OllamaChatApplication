@@ -6,9 +6,9 @@ from fastapi.testclient import TestClient
 
 from app.database import Base, get_db
 from app.main import app
-from app.services.ollama import OllamaService
+from app.services.OllamaService import OllamaService
 
-# Use an in-memory SQLite database for testing
+# Use a local SQLite database file for testing
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
 engine = create_engine(
@@ -50,13 +50,10 @@ def mock_ollama(monkeypatch):
     """
     Mocks the OllamaService class to return pre-defined responses.
     """
-    mock_chat = MagicMock(return_value="Hello! I am the chatbot receptionist. How can I assist you?")
-    mock_emb = MagicMock(return_value=[0.1, 0.2, 0.3])
+    mock_chat = MagicMock(return_value="Hello! I am the hospital receptionist. How can I assist you?")
     
     monkeypatch.setattr(OllamaService, "chat", mock_chat)
-    monkeypatch.setattr(OllamaService, "get_embedding", mock_emb)
     
     return {
-        "chat": mock_chat,
-        "get_embedding": mock_emb
+        "chat": mock_chat
     }

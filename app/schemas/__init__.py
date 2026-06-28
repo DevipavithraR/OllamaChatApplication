@@ -1,21 +1,32 @@
-from app.schemas.customer import CustomerCreate, CustomerUpdate, CustomerResponse
-from app.schemas.reservation import ReservationCreate, ReservationCreateWithCustomer, ReservationUpdate, ReservationResponse
-from app.schemas.menu import MenuItemCreate, MenuItemUpdate, MenuItemResponse
-from app.schemas.chatbot import ChatRequest, ChatResponse, MessageResponse, ConversationResponse
+from app.schemas.patient_schema import PatientCreate, PatientUpdate, PatientResponse
+from app.schemas.doctor_schema import DoctorCreate, DoctorUpdate, DoctorResponse
+from app.schemas.department_schema import DepartmentCreate, DepartmentResponse
+from app.schemas.appointment_schema import (
+    AppointmentCreate, 
+    AppointmentCreateWithPatient, 
+    AppointmentReschedule, 
+    AppointmentUpdate, 
+    AppointmentResponse
+)
+from app.schemas.conversation_schema import ChatRequest, ChatResponse, ConversationResponse
+from app.schemas.message_schema import MessageResponse
 
 __all__ = [
-    "CustomerCreate",
-    "CustomerUpdate",
-    "CustomerResponse",
-    "ReservationCreate",
-    "ReservationCreateWithCustomer",
-    "ReservationUpdate",
-    "ReservationResponse",
-    "MenuItemCreate",
-    "MenuItemUpdate",
-    "MenuItemResponse",
+    "PatientCreate",
+    "PatientUpdate",
+    "PatientResponse",
+    "DoctorCreate",
+    "DoctorUpdate",
+    "DoctorResponse",
+    "DepartmentCreate",
+    "DepartmentResponse",
+    "AppointmentCreate",
+    "AppointmentCreateWithPatient",
+    "AppointmentReschedule",
+    "AppointmentUpdate",
+    "AppointmentResponse",
     "ChatRequest",
     "ChatResponse",
-    "MessageResponse",
-    "ConversationResponse"
+    "ConversationResponse",
+    "MessageResponse"
 ]
