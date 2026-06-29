@@ -2,8 +2,8 @@ from typing import List
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.customer import CustomerCreate, CustomerUpdate, CustomerResponse
-from app.services.customer import CustomerService
+from app.schemas.customer_schema import CustomerCreate, CustomerUpdate, CustomerResponse
+from app.services.CustomerService import CustomerService
 
 router = APIRouter(prefix="/customers", tags=["Customers"])
 

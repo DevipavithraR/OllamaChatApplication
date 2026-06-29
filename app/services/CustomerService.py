@@ -1,8 +1,8 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from app.models.customer import Customer
-from app.repositories.customer import CustomerRepository
-from app.schemas.customer import CustomerCreate, CustomerUpdate
+from app.models.Customer import Customer
+from app.repositories.CustomerRepository import CustomerRepository
+from app.schemas.customer_schema import CustomerCreate, CustomerUpdate
 from fastapi import HTTPException, status
 
 class CustomerService:
@@ -13,17 +13,18 @@ class CustomerService:
         """
         Create a new customer. Raises HTTP 400 if the phone number already exists.
         """
-        existing = self.repository.get_by_phone(customer_in.phone)
+        existing = self.repository.get_by_phone(customer_in.phone_number)
         if existing:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Customer with phone number {customer_in.phone} already exists."
+                detail=f"Customer with phone number {customer_in.phone_number} already exists."
             )
         
         customer = Customer(
             name=customer_in.name,
-            phone=customer_in.phone,
-            email=customer_in.email
+            phone_number=customer_in.phone_number,
+            email=customer_in.email,
+            address=customer_in.address
         )
         return self.repository.create(customer)
 
@@ -39,11 +40,11 @@ class CustomerService:
             )
         return customer
 
-    def get_customer_by_phone(self, phone: str) -> Optional[Customer]:
+    def get_customer_by_phone(self, phone_number: str) -> Optional[Customer]:
         """
         Retrieve customer by phone.
         """
-        return self.repository.get_by_phone(phone)
+        return self.repository.get_by_phone(phone_number)
 
     def get_all_customers(self, skip: int = 0, limit: int = 100) -> List[Customer]:
         """
@@ -59,12 +60,12 @@ class CustomerService:
         update_data = customer_in.model_dump(exclude_unset=True)
         
         # If phone is changing, verify uniqueness
-        if "phone" in update_data and update_data["phone"] != customer.phone:
-            existing = self.repository.get_by_phone(update_data["phone"])
+        if "phone_number" in update_data and update_data["phone_number"] != customer.phone_number:
+            existing = self.repository.get_by_phone(update_data["phone_number"])
             if existing:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Customer with phone number {update_data['phone']} already exists."
+                    detail=f"Customer with phone number {update_data['phone_number']} already exists."
                 )
 
         return self.repository.update(customer, update_data)

@@ -11,9 +11,9 @@ class BaseRepository(Generic[ModelType]):
 
     def get(self, id: int) -> Optional[ModelType]:
         """
-        Retrieve a single record by ID.
+        Retrieve a single record by primary key.
         """
-        return self.db.query(self.model).filter(self.model.id == id).first()
+        return self.db.get(self.model, id)
 
     def get_all(self, skip: int = 0, limit: int = 100) -> List[ModelType]:
         """
@@ -43,7 +43,7 @@ class BaseRepository(Generic[ModelType]):
 
     def delete(self, id: int) -> Optional[ModelType]:
         """
-        Delete a record by ID.
+        Delete a record by primary key.
         """
         db_obj = self.get(id)
         if db_obj:

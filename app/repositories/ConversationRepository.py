@@ -1,7 +1,8 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from app.models.conversation import Conversation, Message
-from app.repositories.base import BaseRepository
+from app.models.Conversation import Conversation
+from app.models.Message import Message
+from app.repositories.BaseRepository import BaseRepository
 
 class ConversationRepository(BaseRepository[Conversation]):
     def __init__(self, db: Session):
@@ -9,7 +10,7 @@ class ConversationRepository(BaseRepository[Conversation]):
 
     def get_by_session_id(self, session_id: str) -> Optional[Conversation]:
         """
-        Retrieve conversation by session_id, pre-loading customer if associated.
+        Retrieve conversation by session_id.
         """
         return self.db.query(Conversation).filter(Conversation.session_id == session_id).first()
 
@@ -24,7 +25,6 @@ class ConversationRepository(BaseRepository[Conversation]):
             .limit(limit)
             .all()
         )
-        # Reverse to return in chronological order (oldest to newest)
         return messages[::-1]
 
     def add_message(self, conversation_id: int, sender: str, content: str) -> Message:
@@ -34,7 +34,7 @@ class ConversationRepository(BaseRepository[Conversation]):
         message = Message(
             conversation_id=conversation_id,
             sender=sender,
-            content=content
+            message=content
         )
         self.db.add(message)
         self.db.commit()

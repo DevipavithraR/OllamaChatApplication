@@ -1,27 +1,26 @@
 import logging
 from app.database import SessionLocal, engine, Base
-from app.models.menu import MenuItem
+from app.models.ServiceCatalog import ServiceCatalog
+from app.models.Mechanic import Mechanic
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("seed")
 
-MENU_ITEMS = [
-    {"name": "Caprese Salad", "description": "Fresh mozzarella, ripe tomatoes, sweet basil leaves, drizzled with balsamic glaze and extra virgin olive oil.", "price": 11.50, "category": "appetizers", "is_available": True},
-    {"name": "Bruschetta", "description": "Grilled bread rubbed with garlic, topped with diced tomatoes, fresh basil, and extra virgin olive oil.", "price": 9.00, "category": "appetizers", "is_available": True},
-    {"name": "Minestrone Soup", "description": "Classic Italian vegetable soup made with tomatoes, beans, onions, celery, carrots, and pasta.", "price": 8.50, "category": "appetizers", "is_available": True},
-    {"name": "Margherita Pizza", "description": "Traditional Italian pizza topped with tomato sauce, fresh mozzarella, and sweet basil.", "price": 14.50, "category": "entrees", "is_available": True},
-    {"name": "Fettuccine Alfredo", "description": "Fettuccine pasta tossed in a rich, creamy sauce made of parmesan cheese and butter.", "price": 17.50, "category": "entrees", "is_available": True},
-    {"name": "Spaghetti Carbonara", "description": "Spaghetti tossed with crispy pancetta, eggs, pecorino romano cheese, and cracked black pepper.", "price": 18.00, "category": "entrees", "is_available": True},
-    {"name": "Grilled Ribeye Steak", "description": "Premium ribeye steak grilled to order, served with garlic mashed potatoes and roasted asparagus.", "price": 32.00, "category": "entrees", "is_available": True},
-    {"name": "Chicken Parmigiana", "description": "Breaded chicken breast baked with tomato sauce and mozzarella cheese, served over spaghetti.", "price": 21.00, "category": "entrees", "is_available": True},
-    {"name": "Tiramisu", "description": "Classic Italian dessert made of coffee-dipped ladyfingers layered with whipped mascarpone cheese and cocoa.", "price": 8.50, "category": "desserts", "is_available": True},
-    {"name": "Panna Cotta", "description": "Creamy Italian pudding sweetened with sugar and vanilla, topped with a fresh raspberry coulis.", "price": 7.50, "category": "desserts", "is_available": True},
-    {"name": "Gelato Trio", "description": "Three scoops of authentic Italian gelato. Flavors: dark chocolate, pistachio, and Tahitian vanilla.", "price": 6.50, "category": "desserts", "is_available": True},
-    {"name": "Chardonnay", "description": "Crisp white wine with notes of apple, pear, and a touch of oak. Glass/Bottle.", "price": 9.50, "category": "drinks", "is_available": True},
-    {"name": "Chianti Classico", "description": "Bold red wine with cherry, leather, and vanilla tasting notes. Glass/Bottle.", "price": 11.00, "category": "drinks", "is_available": True},
-    {"name": "San Pellegrino", "description": "Sparkling natural mineral water from the Italian Alps.", "price": 4.50, "category": "drinks", "is_available": True},
-    {"name": "Espresso", "description": "Rich and intense shot of freshly brewed espresso.", "price": 3.50, "category": "drinks", "is_available": True}
+SERVICES = [
+    {"service_name": "General Service", "description": "Complete vehicle inspection, engine oil check & top up, filter cleaning, and basic electrical check.", "estimated_duration": "2 Hours", "service_cost": 2500.00},
+    {"service_name": "Engine Repair", "description": "Advanced engine diagnostics, cylinder block overhaul, timing belt adjustments, and valve tuning.", "estimated_duration": "6 Hours", "service_cost": 8500.00},
+    {"service_name": "Brake Replacement", "description": "Front and rear brake pad replacement, disc brake resurfacing, and brake fluid flushing.", "estimated_duration": "1.5 Hours", "service_cost": 1800.00},
+    {"service_name": "AC Overhaul", "description": "AC compressor testing, condenser wash, evaporator cleaning, and refrigerant gas top-up.", "estimated_duration": "3 Hours", "service_cost": 3000.00},
+    {"service_name": "Wheel Alignment", "description": "Precision wheel alignment, high-speed wheel balancing, tyre rotation, and tread health inspection.", "estimated_duration": "1 Hour", "service_cost": 1200.00}
+]
+
+MECHANICS = [
+    {"name": "Arun Kumar", "specialization": "Engine Repair", "experience": 10, "available_status": "Available"},
+    {"name": "Rajesh Sharma", "specialization": "Brake Replacement", "experience": 8, "available_status": "Available"},
+    {"name": "Vikram Singh", "specialization": "AC Overhaul", "experience": 6, "available_status": "Available"},
+    {"name": "Amit Patel", "specialization": "Wheel Alignment", "experience": 4, "available_status": "Available"},
+    {"name": "Senthil Kumar", "specialization": "General Service", "experience": 5, "available_status": "Available"}
 ]
 
 def seed_database():
@@ -30,18 +29,30 @@ def seed_database():
     
     db = SessionLocal()
     try:
-        # Check if menu already has items
-        existing_count = db.query(MenuItem).count()
-        if existing_count > 0:
-            logger.info(f"Database already contains {existing_count} menu items. Skipping seed.")
-            return
+        # Check if services already seeded
+        svc_count = db.query(ServiceCatalog).count()
+        if svc_count == 0:
+            logger.info("Seeding service catalog items...")
+            for svc_data in SERVICES:
+                svc = ServiceCatalog(**svc_data)
+                db.add(svc)
+            db.commit()
+            logger.info("Seeding services completed successfully!")
+        else:
+            logger.info(f"Database already contains {svc_count} service catalog items. Skipping services seed.")
 
-        logger.info("Seeding menu items...")
-        for item_data in MENU_ITEMS:
-            item = MenuItem(**item_data)
-            db.add(item)
-        db.commit()
-        logger.info("Seeding completed successfully!")
+        # Check if mechanics already seeded
+        mech_count = db.query(Mechanic).count()
+        if mech_count == 0:
+            logger.info("Seeding mechanics...")
+            for mech_data in MECHANICS:
+                mech = Mechanic(**mech_data)
+                db.add(mech)
+            db.commit()
+            logger.info("Seeding mechanics completed successfully!")
+        else:
+            logger.info(f"Database already contains {mech_count} mechanics. Skipping mechanics seed.")
+            
     except Exception as e:
         db.rollback()
         logger.error(f"Error seeding database: {str(e)}")

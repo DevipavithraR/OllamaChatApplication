@@ -1,20 +1,19 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.chatbot import ChatRequest, ChatResponse, ConversationResponse
-from app.services.chatbot import ChatbotService
-from fastapi import HTTPException
+from app.schemas.chatbot_schema import ChatRequest, ChatResponse, ConversationResponse
+from app.services.ChatService import ChatService
 
 router = APIRouter(prefix="/chatbot", tags=["AI Chatbot"])
 
 @router.post("/chat", response_model=ChatResponse, status_code=status.HTTP_200_OK)
-def chat_with_receptionist(request: ChatRequest, db: Session = Depends(get_db)):
+def chat_with_assistant(request: ChatRequest, db: Session = Depends(get_db)):
     """
-    Interact with the Restaurant Receptionist AI Chatbot.
-    Maintains a conversation history context of the last 10 messages and uses RAG to fetch menu/reservation details.
+    Interact with the Vehicle Service Center AI Receptionist.
+    Maintains a conversation history context of the last 10 messages and uses RAG to fetch service/mechanic details.
     """
-    chatbot_service = ChatbotService(db)
-    result = chatbot_service.process_message(request.session_id, request.message)
+    chat_service = ChatService(db)
+    result = chat_service.process_message(request.session_id, request.message)
     return ChatResponse(
         session_id=result["session_id"],
         response=result["response"],
@@ -26,8 +25,8 @@ def get_session_history(session_id: str, db: Session = Depends(get_db)):
     """
     Retrieve the message history and customer link for a specific session ID.
     """
-    chatbot_service = ChatbotService(db)
-    conversation = chatbot_service.conversation_repo.get_by_session_id(session_id)
+    chat_service = ChatService(db)
+    conversation = chat_service.conversation_repo.get_by_session_id(session_id)
     if not conversation:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

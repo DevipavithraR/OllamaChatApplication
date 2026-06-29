@@ -1,13 +1,19 @@
-from app.repositories.base import BaseRepository
-from app.repositories.customer import CustomerRepository
-from app.repositories.reservation import ReservationRepository
-from app.repositories.menu import MenuRepository
-from app.repositories.conversation import ConversationRepository
+from app.repositories.BaseRepository import BaseRepository
+from app.repositories.CustomerRepository import CustomerRepository
+from app.repositories.VehicleRepository import VehicleRepository
+from app.repositories.MechanicRepository import MechanicRepository
+from app.repositories.ServiceRepository import ServiceRepository
+from app.repositories.ServiceBookingRepository import ServiceBookingRepository
+from app.repositories.ConversationRepository import ConversationRepository
+from app.repositories.MessageRepository import MessageRepository
 
 __all__ = [
     "BaseRepository",
     "CustomerRepository",
-    "ReservationRepository",
-    "MenuRepository",
-    "ConversationRepository"
+    "VehicleRepository",
+    "MechanicRepository",
+    "ServiceRepository",
+    "ServiceBookingRepository",
+    "ConversationRepository",
+    "MessageRepository"
 ]
