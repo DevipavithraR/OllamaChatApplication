@@ -4,7 +4,7 @@ from typing import List, Dict, Any, Optional
 from app.config import settings
 from fastapi import HTTPException, status
 
-logger = logging.getLogger("app.services.ollama")
+logger = logging.getLogger("app.services.OllamaService")
 
 class OllamaService:
     def __init__(self):
@@ -55,7 +55,6 @@ class OllamaService:
     def get_embedding(self, text: str) -> List[float]:
         """
         Retrieves vector embeddings for a given piece of text.
-        Useful for building advanced semantic search or custom similarity matchers.
         """
         url = f"{self.base_url}/api/embeddings"
         payload = {

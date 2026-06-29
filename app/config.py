@@ -2,7 +2,7 @@ import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "mysql+pymysql://root:@localhost:3306/attendance_db"
+    DATABASE_URL: str = "mysql+pymysql://root:@localhost:3306/library_db"
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "llama3"
     HOST: str = "0.0.0.0"

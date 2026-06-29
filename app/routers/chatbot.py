@@ -1,36 +1,31 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.chatbot import ChatRequest, ChatResponse, ConversationResponse
-from app.services.chatbot import ChatbotService
-from fastapi import HTTPException
+from app.schemas.chatbot import ChatRequest, ChatResponse
+from app.schemas.conversation_schema import ConversationResponse
+from app.services.ChatService import ChatService
 
-router = APIRouter(prefix="/chatbot", tags=["AI Chatbot"])
+router = APIRouter(prefix="/chatbot", tags=["Chatbot"])
 
-@router.post("/chat", response_model=ChatResponse, status_code=status.HTTP_200_OK)
-def chat_with_receptionist(request: ChatRequest, db: Session = Depends(get_db)):
+@router.post("/chat", response_model=ChatResponse)
+def chat_with_bot(payload: ChatRequest, db: Session = Depends(get_db)):
     """
-    Interact with the Restaurant Receptionist AI Chatbot.
-    Maintains a conversation history context of the last 10 messages and uses RAG to fetch menu/reservation details.
+    Send a message to the Digital Library Assistant and receive a processed response.
     """
-    chatbot_service = ChatbotService(db)
-    result = chatbot_service.process_message(request.session_id, request.message)
+    service = ChatService(db)
+    result = service.process_message(payload.session_id, payload.message)
     return ChatResponse(
         session_id=result["session_id"],
         response=result["response"],
+        member_id=result["member_id"],
         customer_id=result["customer_id"]
     )
 
 @router.get("/history/{session_id}", response_model=ConversationResponse)
-def get_session_history(session_id: str, db: Session = Depends(get_db)):
+def get_chat_history(session_id: str, db: Session = Depends(get_db)):
     """
-    Retrieve the message history and customer link for a specific session ID.
+    Retrieve conversational message logs for a given session.
     """
-    chatbot_service = ChatbotService(db)
-    conversation = chatbot_service.conversation_repo.get_by_session_id(session_id)
-    if not conversation:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Conversation history for session '{session_id}' not found."
-        )
+    service = ChatService(db)
+    conversation = service.get_conversation_history(session_id)
     return conversation
