@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import engine, Base
-from app.routers import customer_router, reservation_router, menu_router, chatbot_router
+from app.routers import member_router, plan_router, trainer_router, booking_router, chatbot_router
 from app.exceptions.handlers import setup_exception_handlers
 
 # Configure logging format and level
@@ -14,8 +14,6 @@ logging.basicConfig(
 logger = logging.getLogger("app.main")
 
 # Auto-create tables on startup if they don't exist
-# In professional environments, migrations (e.g. Alembic) are used,
-# but auto-creation provides immediate setup utility.
 try:
     logger.info("Initializing database tables...")
     Base.metadata.create_all(bind=engine)
@@ -24,8 +22,8 @@ except Exception as e:
     logger.error(f"Error initializing database tables: {str(e)}")
 
 app = FastAPI(
-    title="Restaurant AI Receptionist API",
-    description="FastAPI service for restaurant operations and an interactive RAG receptionist chatbot.",
+    title="Gym AI Receptionist API",
+    description="FastAPI service for gym operations, membership management, and an interactive RAG gym receptionist chatbot.",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -44,15 +42,16 @@ app.add_middleware(
 setup_exception_handlers(app)
 
 # Include API Routers
-app.include_router(customer_router)
-app.include_router(reservation_router)
-app.include_router(menu_router)
+app.include_router(member_router)
+app.include_router(plan_router)
+app.include_router(trainer_router)
+app.include_router(booking_router)
 app.include_router(chatbot_router)
 
 @app.get("/")
 def read_root():
     return {
-        "app": "Bella Italia Restaurant AI Receptionist API",
+        "app": "AI Gym Membership & Trainer Booking Assistant API",
         "version": "1.0.0",
         "status": "healthy",
         "docs": "/docs"

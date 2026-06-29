@@ -11,9 +11,10 @@ class BaseRepository(Generic[ModelType]):
 
     def get(self, id: int) -> Optional[ModelType]:
         """
-        Retrieve a single record by ID.
+        Retrieve a single record by dynamic ID.
         """
-        return self.db.query(self.model).filter(self.model.id == id).first()
+        pk_column = self.model.__mapper__.primary_key[0]
+        return self.db.query(self.model).filter(pk_column == id).first()
 
     def get_all(self, skip: int = 0, limit: int = 100) -> List[ModelType]:
         """

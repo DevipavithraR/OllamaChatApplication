@@ -3,13 +3,13 @@ version: '3.8'
 services:
   db:
     image: mysql:8.0
-    container_name: restaurant_mysql_db
+    container_name: gym_mysql_db
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: restaurant_db
-      MYSQL_USER: receptionist_user
-      MYSQL_PASSWORD: receptionist_pass
+      MYSQL_DATABASE: gym_db
+      MYSQL_USER: gym_user
+      MYSQL_PASSWORD: gym_pass
     ports:
       - "3306:3306"
     volumes:
@@ -35,12 +35,12 @@ services:
     build:
       context: ..
       dockerfile: docker/app.Dockerfile
-    container_name: restaurant_chatbot_app
+    container_name: gym_chatbot_app
     restart: always
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=mysql+pymysql://root:password@db:3306/restaurant_db
+      - DATABASE_URL=mysql+pymysql://root:password@db:3306/gym_db
       - OLLAMA_BASE_URL=http://ollama:11434
       - OLLAMA_MODEL=llama3
       - LOG_LEVEL=INFO

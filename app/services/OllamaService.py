@@ -4,7 +4,7 @@ from typing import List, Dict, Any, Optional
 from app.config import settings
 from fastapi import HTTPException, status
 
-logger = logging.getLogger("app.services.ollama")
+logger = logging.getLogger("app.services.OllamaService")
 
 class OllamaService:
     def __init__(self):
@@ -30,7 +30,6 @@ class OllamaService:
             response.raise_for_status()
             
             result = response.json()
-            # Extract content from response
             chat_response = result.get("message", {}).get("content", "")
             return chat_response
         except requests.exceptions.Timeout:
@@ -55,7 +54,6 @@ class OllamaService:
     def get_embedding(self, text: str) -> List[float]:
         """
         Retrieves vector embeddings for a given piece of text.
-        Useful for building advanced semantic search or custom similarity matchers.
         """
         url = f"{self.base_url}/api/embeddings"
         payload = {

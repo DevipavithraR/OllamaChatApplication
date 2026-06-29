@@ -1,11 +1,13 @@
-from app.routers.customer import router as customer_router
-from app.routers.reservation import router as reservation_router
-from app.routers.menu import router as menu_router
+from app.routers.members import router as member_router
+from app.routers.plans import router as plan_router
+from app.routers.trainers import router as trainer_router
+from app.routers.trainer_bookings import router as booking_router
 from app.routers.chatbot import router as chatbot_router
 
 __all__ = [
-    "customer_router",
-    "reservation_router",
-    "menu_router",
+    "member_router",
+    "plan_router",
+    "trainer_router",
+    "booking_router",
     "chatbot_router"
 ]
