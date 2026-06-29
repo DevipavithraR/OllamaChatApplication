@@ -1,4 +1,5 @@
 from typing import Generic, TypeVar, Type, List, Optional, Any
+from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 from app.database import Base
 
@@ -11,9 +12,10 @@ class BaseRepository(Generic[ModelType]):
 
     def get(self, id: int) -> Optional[ModelType]:
         """
-        Retrieve a single record by ID.
+        Retrieve a single record by its primary key.
         """
-        return self.db.query(self.model).filter(self.model.id == id).first()
+        pk_column = inspect(self.model).primary_key[0]
+        return self.db.query(self.model).filter(pk_column == id).first()
 
     def get_all(self, skip: int = 0, limit: int = 100) -> List[ModelType]:
         """
@@ -43,7 +45,7 @@ class BaseRepository(Generic[ModelType]):
 
     def delete(self, id: int) -> Optional[ModelType]:
         """
-        Delete a record by ID.
+        Delete a record by primary key.
         """
         db_obj = self.get(id)
         if db_obj:

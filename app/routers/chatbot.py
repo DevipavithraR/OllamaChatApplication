@@ -1,17 +1,16 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.chatbot import ChatRequest, ChatResponse, ConversationResponse
+from app.schemas import ChatRequest, ChatResponse, ConversationResponse
 from app.services.chatbot import ChatbotService
-from fastapi import HTTPException
 
 router = APIRouter(prefix="/chatbot", tags=["AI Chatbot"])
 
 @router.post("/chat", response_model=ChatResponse, status_code=status.HTTP_200_OK)
 def chat_with_receptionist(request: ChatRequest, db: Session = Depends(get_db)):
     """
-    Interact with the Restaurant Receptionist AI Chatbot.
-    Maintains a conversation history context of the last 10 messages and uses RAG to fetch menu/reservation details.
+    Interact with the Cinema Receptionist AI Chatbot.
+    Maintains a conversation history context of the last 10 messages and uses RAG to fetch movie/booking details.
     """
     chatbot_service = ChatbotService(db)
     result = chatbot_service.process_message(request.session_id, request.message)

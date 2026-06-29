@@ -1,7 +1,10 @@
 from app.database import Base
 from app.models.customer import Customer
-from app.models.reservation import Reservation
-from app.models.menu import MenuItem
-from app.models.conversation import Conversation, Message
+from app.models.Movie import Movie
+from app.models.Theatre import Theatre
+from app.models.Show import Show
+from app.models.Booking import Booking
+from app.models.conversation import Conversation
+from app.models.Message import Message
 
-__all__ = ["Base", "Customer", "Reservation", "MenuItem", "Conversation", "Message"]
+__all__ = ["Base", "Customer", "Movie", "Theatre", "Show", "Booking", "Conversation", "Message"]
