@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import engine, Base
-from app.routers import patient_router, doctor_router, department_router, appointment_router, chatbot_router
+from app.routers import student_router, course_router, department_router, admission_router, chatbot_router
 from app.exceptions.handlers import setup_exception_handlers
 
 # Configure logging format and level
@@ -14,8 +14,6 @@ logging.basicConfig(
 logger = logging.getLogger("app.main")
 
 # Auto-create tables on startup if they don't exist
-# In professional environments, migrations (e.g. Alembic) are used,
-# but auto-creation provides immediate setup utility.
 try:
     logger.info("Initializing database tables...")
     Base.metadata.create_all(bind=engine)
@@ -24,8 +22,8 @@ except Exception as e:
     logger.error(f"Error initializing database tables: {str(e)}")
 
 app = FastAPI(
-    title="Hospital AI Appointment Receptionist API",
-    description="FastAPI service for hospital operations and an interactive RAG receptionist chatbot.",
+    title="AI College Admission Assistant API",
+    description="FastAPI service for college operations and an interactive RAG admission counselor chatbot.",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -44,16 +42,16 @@ app.add_middleware(
 setup_exception_handlers(app)
 
 # Include API Routers
-app.include_router(patient_router)
-app.include_router(doctor_router)
+app.include_router(student_router)
+app.include_router(course_router)
 app.include_router(department_router)
-app.include_router(appointment_router)
+app.include_router(admission_router)
 app.include_router(chatbot_router)
 
 @app.get("/")
 def read_root():
     return {
-        "app": "Hope Hospital AI Appointment Receptionist API",
+        "app": "AI College Admission Assistant API",
         "version": "1.0.0",
         "status": "healthy",
         "docs": "/docs"

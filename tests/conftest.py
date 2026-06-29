@@ -50,7 +50,7 @@ def mock_ollama(monkeypatch):
     """
     Mocks the OllamaService class to return pre-defined responses.
     """
-    mock_chat = MagicMock(return_value="Hello! I am the hospital receptionist. How can I assist you?")
+    mock_chat = MagicMock(return_value="Hello! I am the college admission counselor. How can I assist you?")
     
     monkeypatch.setattr(OllamaService, "chat", mock_chat)
     

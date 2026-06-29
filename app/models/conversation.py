@@ -8,9 +8,9 @@ class Conversation(Base):
 
     conversation_id = Column(Integer, primary_key=True, index=True)
     session_id = Column(String(100), unique=True, index=True, nullable=False)
-    patient_id = Column(Integer, ForeignKey("patients.patient_id", ondelete="SET NULL"), nullable=True)
+    student_id = Column(Integer, ForeignKey("students.student_id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
-    patient = relationship("Patient", back_populates="conversations")
+    student = relationship("Student", back_populates="conversations")
     messages = relationship("Message", back_populates="conversation", cascade="all, delete-orphan")

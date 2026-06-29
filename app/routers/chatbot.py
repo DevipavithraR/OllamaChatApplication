@@ -15,7 +15,7 @@ def chat(chat_req: ChatRequest, db: Session = Depends(get_db)):
     return ChatResponse(
         session_id=result["session_id"],
         response=result["response"],
-        patient_id=result["patient_id"]
+        student_id=result["student_id"]
     )
 
 @router.get("/history/{session_id}", response_model=ConversationResponse)
@@ -27,7 +27,7 @@ def get_history(session_id: str, db: Session = Depends(get_db)):
     if not conversation:
         return ConversationResponse(
             session_id=session_id,
-            patient_id=None,
+            student_id=None,
             messages=[]
         )
         
@@ -35,6 +35,6 @@ def get_history(session_id: str, db: Session = Depends(get_db)):
     
     return ConversationResponse(
         session_id=conversation.session_id,
-        patient_id=conversation.patient_id,
+        student_id=conversation.student_id,
         messages=messages
     )

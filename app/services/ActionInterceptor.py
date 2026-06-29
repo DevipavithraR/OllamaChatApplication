@@ -1,129 +1,143 @@
 import json
 import re
 import logging
-from datetime import datetime
+from datetime import datetime, date
 from sqlalchemy.orm import Session
-from app.services.PatientService import PatientService
-from app.services.AppointmentService import AppointmentService
+from app.services.StudentService import StudentService
+from app.services.AdmissionService import AdmissionService
 from app.repositories.ConversationRepository import ConversationRepository
-from app.schemas.patient_schema import PatientCreate
-from app.schemas.appointment_schema import AppointmentCreateWithPatient
+from app.schemas.student_schema import StudentCreate
+from app.schemas.admission_schema import AdmissionCreateWithStudent
 
 logger = logging.getLogger("app.services.ActionInterceptor")
 
 class ActionInterceptor:
     def __init__(self, db: Session):
         self.db = db
-        self.patient_service = PatientService(db)
-        self.appointment_service = AppointmentService(db)
+        self.student_service = StudentService(db)
+        self.admission_service = AdmissionService(db)
         self.conversation_repo = ConversationRepository(db)
 
     def intercept_and_execute(self, conversation_id: int, response_text: str) -> str:
         """
-        Scans LLM output for action tags (PATIENT_IDENTIFY, APPOINTMENT_CONFIRM, 
-        APPOINTMENT_CANCEL, APPOINTMENT_RESCHEDULE).
+        Scans LLM output for action tags (STUDENT_IDENTIFY, ADMISSION_APPLY, 
+        ADMISSION_STATUS, APPLICATION_CANCEL).
         Parses the JSON payloads, updates the DB, and strips tags from the response.
         """
         cleaned_text = response_text
 
-        # 1. Intercept PATIENT_IDENTIFY
-        patient_pattern = r"```PATIENT_IDENTIFY\s*(\{.*?\})\s*```"
-        patient_match = re.search(patient_pattern, response_text, re.DOTALL)
-        if patient_match:
-            json_str = patient_match.group(1)
+        # 1. Intercept STUDENT_IDENTIFY
+        student_pattern = r"```STUDENT_IDENTIFY\s*(\{.*?\})\s*```"
+        student_match = re.search(student_pattern, response_text, re.DOTALL)
+        if student_match:
+            json_str = student_match.group(1)
             try:
                 data = json.loads(json_str)
-                logger.info(f"Processing patient identification action: {data}")
+                logger.info(f"Processing student identification action: {data}")
                 
                 phone = data["phone"]
                 name = data["name"]
                 
-                # Check if patient exists, else create
-                patient = self.patient_service.get_patient_by_phone(phone)
-                if not patient:
-                    patient = self.patient_service.create_patient(
-                        PatientCreate(name=name, phone_number=phone)
+                # Check if student exists, else create
+                student = self.student_service.get_student_by_phone(phone)
+                if not student:
+                    student = self.student_service.create_student(
+                        StudentCreate(name=name, phone_number=phone)
                     )
                 
-                # Link conversation to patient
-                self.conversation_repo.link_patient(conversation_id, patient.patient_id)
-                logger.info(f"Linked conversation {conversation_id} to patient {patient.patient_id}")
+                # Link conversation to student
+                self.conversation_repo.link_student(conversation_id, student.student_id)
+                logger.info(f"Linked conversation {conversation_id} to student {student.student_id}")
             except Exception as e:
-                logger.error(f"Failed to process PATIENT_IDENTIFY block: {str(e)}")
+                logger.error(f"Failed to process STUDENT_IDENTIFY block: {str(e)}")
             
             # Strip block from text
-            cleaned_text = re.sub(patient_pattern, "", cleaned_text, flags=re.DOTALL).strip()
+            cleaned_text = re.sub(student_pattern, "", cleaned_text, flags=re.DOTALL).strip()
 
-        # 2. Intercept APPOINTMENT_CONFIRM
-        confirm_pattern = r"```APPOINTMENT_CONFIRM\s*(\{.*?\})\s*```"
-        confirm_match = re.search(confirm_pattern, response_text, re.DOTALL)
-        if confirm_match:
-            json_str = confirm_match.group(1)
+        # 2. Intercept ADMISSION_APPLY
+        apply_pattern = r"```ADMISSION_APPLY\s*(\{.*?\})\s*```"
+        apply_match = re.search(apply_pattern, response_text, re.DOTALL)
+        if apply_match:
+            json_str = apply_match.group(1)
             try:
                 data = json.loads(json_str)
-                logger.info(f"Processing appointment confirm action: {data}")
+                logger.info(f"Processing admission apply action: {data}")
                 
-                # Parse datetime string
-                dt_str = data["appointment_datetime"]
-                app_time = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                # Parse date string
+                date_str = data.get("application_date")
+                app_date = date.today()
+                if date_str:
+                    try:
+                        app_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+                    except ValueError:
+                        pass
                 
-                dto = AppointmentCreateWithPatient(
-                    patient_name=data["name"],
-                    patient_phone=data["phone"],
-                    patient_email=data.get("email"),
-                    patient_gender=data.get("gender"),
-                    patient_age=data.get("age"),
-                    doctor_name=data["doctor"],
-                    department=data.get("department"),
-                    appointment_datetime=app_time,
-                    special_notes=data.get("special_notes"),
-                    status="CONFIRMED"
+                dto = AdmissionCreateWithStudent(
+                    student_name=data["name"],
+                    student_phone=data["phone"],
+                    student_email=data.get("email"),
+                    marks_percentage=float(data["marks_percentage"]) if data.get("marks_percentage") is not None else None,
+                    course_name=data["course"],
+                    application_date=app_date,
+                    remarks=f"Applied via Chatbot interface on {app_date}"
                 )
                 
-                appointment = self.appointment_service.create_appointment_with_patient(dto)
-                # Link conversation to patient
-                self.conversation_repo.link_patient(conversation_id, appointment.patient_id)
-                logger.info(f"Successfully confirmed appointment {appointment.appointment_id} for patient {appointment.patient_id}")
+                admission = self.admission_service.create_admission_with_student(dto)
+                # Link conversation to student
+                self.conversation_repo.link_student(conversation_id, admission.student_id)
+                logger.info(f"Successfully created admission {admission.admission_id} for student {admission.student_id}")
+                
+                # Append Application ID to bot response for user visibility
+                app_id_info = f"\n\n**Application Submitted Successfully!** Your Application ID is **#{admission.admission_id}**."
+                cleaned_text = cleaned_text + app_id_info
             except Exception as e:
-                logger.error(f"Failed to process APPOINTMENT_CONFIRM block: {str(e)}")
+                logger.error(f"Failed to process ADMISSION_APPLY block: {str(e)}")
+                error_info = f"\n\n*Error: Could not process admission application: {str(e)}*"
+                cleaned_text = cleaned_text + error_info
             
-            cleaned_text = re.sub(confirm_pattern, "", cleaned_text, flags=re.DOTALL).strip()
+            cleaned_text = re.sub(apply_pattern, "", cleaned_text, flags=re.DOTALL).strip()
 
-        # 3. Intercept APPOINTMENT_CANCEL
-        cancel_pattern = r"```APPOINTMENT_CANCEL\s*(\{.*?\})\s*```"
+        # 3. Intercept ADMISSION_STATUS
+        status_pattern = r"```ADMISSION_STATUS\s*(\{.*?\})\s*```"
+        status_match = re.search(status_pattern, response_text, re.DOTALL)
+        if status_match:
+            json_str = status_match.group(1)
+            try:
+                data = json.loads(json_str)
+                logger.info(f"Processing admission status action: {data}")
+                
+                app_id = int(data["application_id"])
+                admission = self.admission_service.get_admission_by_id(app_id)
+                
+                status_info = f"\n\n**Application Status for #{app_id}:**\n- **Course:** {admission.course.course_name}\n- **Student Name:** {admission.student.name}\n- **Status:** {admission.status}\n- **Remarks:** {admission.remarks or 'N/A'}"
+                cleaned_text = cleaned_text + status_info
+            except Exception as e:
+                logger.error(f"Failed to process ADMISSION_STATUS block: {str(e)}")
+                error_info = f"\n\n*Error: Could not retrieve status: {str(e)}*"
+                cleaned_text = cleaned_text + error_info
+            
+            cleaned_text = re.sub(status_pattern, "", cleaned_text, flags=re.DOTALL).strip()
+
+        # 4. Intercept APPLICATION_CANCEL
+        cancel_pattern = r"```APPLICATION_CANCEL\s*(\{.*?\})\s*```"
         cancel_match = re.search(cancel_pattern, response_text, re.DOTALL)
         if cancel_match:
             json_str = cancel_match.group(1)
             try:
                 data = json.loads(json_str)
-                logger.info(f"Processing appointment cancel action: {data}")
+                logger.info(f"Processing application cancel action: {data}")
                 
-                app_id = int(data["appointment_id"])
-                appointment = self.appointment_service.cancel_appointment(app_id)
-                logger.info(f"Successfully cancelled appointment {appointment.appointment_id}")
+                app_id = int(data["application_id"])
+                admission = self.admission_service.cancel_admission(app_id)
+                logger.info(f"Successfully cancelled admission {admission.admission_id}")
+                
+                cancel_info = f"\n\n**Application #{app_id} has been cancelled successfully.**"
+                cleaned_text = cleaned_text + cancel_info
             except Exception as e:
-                logger.error(f"Failed to process APPOINTMENT_CANCEL block: {str(e)}")
+                logger.error(f"Failed to process APPLICATION_CANCEL block: {str(e)}")
+                error_info = f"\n\n*Error: Could not cancel application: {str(e)}*"
+                cleaned_text = cleaned_text + error_info
             
             cleaned_text = re.sub(cancel_pattern, "", cleaned_text, flags=re.DOTALL).strip()
-
-        # 4. Intercept APPOINTMENT_RESCHEDULE
-        resched_pattern = r"```APPOINTMENT_RESCHEDULE\s*(\{.*?\})\s*```"
-        resched_match = re.search(resched_pattern, response_text, re.DOTALL)
-        if resched_match:
-            json_str = resched_match.group(1)
-            try:
-                data = json.loads(json_str)
-                logger.info(f"Processing appointment reschedule action: {data}")
-                
-                app_id = int(data["appointment_id"])
-                dt_str = data["appointment_datetime"]
-                new_time = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
-                
-                appointment = self.appointment_service.reschedule_appointment(app_id, new_time)
-                logger.info(f"Successfully rescheduled appointment {appointment.appointment_id} to {new_time}")
-            except Exception as e:
-                logger.error(f"Failed to process APPOINTMENT_RESCHEDULE block: {str(e)}")
-            
-            cleaned_text = re.sub(resched_pattern, "", cleaned_text, flags=re.DOTALL).strip()
 
         return cleaned_text

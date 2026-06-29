@@ -8,18 +8,12 @@ class ConversationRepository(BaseRepository[Conversation]):
         super().__init__(Conversation, db)
 
     def get_by_session_id(self, session_id: str) -> Optional[Conversation]:
-        """
-        Retrieve conversation by session_id.
-        """
         return self.db.query(Conversation).filter(Conversation.session_id == session_id).first()
 
-    def link_patient(self, conversation_id: int, patient_id: int) -> Conversation:
-        """
-        Associate a patient with an active conversation.
-        """
-        conversation = self.get(conversation_id)
-        if conversation:
-            conversation.patient_id = patient_id
+    def link_student(self, conversation_id: int, student_id: int) -> Optional[Conversation]:
+        conv = self.get(conversation_id)
+        if conv:
+            conv.student_id = student_id
             self.db.commit()
-            self.db.refresh(conversation)
-        return conversation
+            self.db.refresh(conv)
+        return conv
