@@ -56,7 +56,7 @@ class ChatbotService:
                 for item in menu_items
             ])
         else:
-            menu_context = "No specific menu items matched. Assure the customer we have a premium Italian menu available upon request."
+            menu_context = "No specific menu items matched. Assure the customer we have a premium Indian menu available upon request."
 
         # RAG: Customer & Reservation context
         customer_context = "Anonymous Customer"
@@ -78,7 +78,7 @@ class ChatbotService:
 
         # 3. Build System Prompt Context
         current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        system_prompt = f"""You are the AI Receptionist for "Bella Italia", a premium Italian restaurant.
+        system_prompt = f"""You are the AI Receptionist for "Spice Symphony", a premium Indian restaurant.
 Your goal is to answer customer questions about the menu, check existing reservations, and book new reservations.
 
 CRITICAL INSTRUCTIONS (No Hallucination Policy):
